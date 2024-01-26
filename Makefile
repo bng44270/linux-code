@@ -77,3 +77,59 @@ endef
 define m4define
 @echo -e "define(\`$(1)',\`$(shell printf "$(2)" | sed -z 's/\n/\\n/g')')"
 endef
+
+##############
+# Create a C Header file "#define" directive with a non-string value
+#
+# Usage:
+#   $(call newdefine,Enter the number of files,FILE_COUNT,1,settings.h)
+#
+#   The above code will result in the following line if no number is entered:
+#      #define FILE_COUNT 1
+#
+#   The above code will result in the following line if 4 is entered:
+#      #define FILE_COUNT 4
+##############
+define newdefine
+@read -p "$(1) [$(3)]: " thisset ; [[ -z "$$thisset" ]] && echo "#define $(2) $(3)" >> $(4) || echo "#define $(2) $$thisset" | sed 's/\/$$//g' >> $(4)
+endef
+
+##############
+# Create a C Header file "#define" directive with a string value
+#
+# Usage:
+#   $(call newdefinestr,Enter the directory,FOLDER_PATH,/tmp,settings.h)
+#
+#   The above code will result in the following line if no number is entered:
+#      #define FOLDER_PATH "/tmp"
+#
+#   The above code will result in the following line if "/usr/share" is entered:
+#      #define FOLDER_PATH "/usr/share"
+##############
+define newdefinestr
+@read -p "$(1) [$(3)]: " thisset ; [[ -z "$$thisset" ]] && echo "#define $(2) \"$(3)\"" >> $(4) || echo "#define $(2) \"$$thisset\"" | sed 's/\/$$//g' >> $(4)
+endef
+
+##############
+# Returns the value of a #define directive from a header file
+#
+# Usage:
+#   $(call getdefine,settings.h,FOLDER_NAME)
+#
+#   The above code will return the value of #define FOLDER_NAME 
+##############
+define getdefine
+$$((cpp -P <<< "$$(cat $(1) ; echo "$(2)")") | sed 's/"//g')
+endef
+
+##############
+# Validate SSL Cert/Key pair
+#
+# Usage:
+#   $(call certkeyval,/path/to/key_file,/path/to/cert_file)
+#
+#   If validation fails, the make process will abort and display a message accordingly
+##############
+define certkeyval
+@(test -n "$(call getdefine,$(H_FILE),$(1))" && test -n "$(call getdefine,$(H_FILE),$(2))" && test -f $(call getdefine,$(H_FILE),$(1)) && test -f $(call getdefine,$(H_FILE),$(2)) && test "$$(openssl rsa -modulus -noout -in $(call getdefine,$(H_FILE),$(1)))" = "$$(openssl x509 -modulus -noout -in $(call getdefine,$(H_FILE),$(2)))" && echo "Verified cert/key pair") || (echo "Error verifying cert/key pair"; exit 1)
+endef
