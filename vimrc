@@ -1,5 +1,6 @@
 " Standard settings
 set number
+set nowrap
 set autoindent
 syntax on
 colorscheme slate
