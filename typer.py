@@ -90,6 +90,6 @@ class Typer:
       # Static method Retreive list of valid keystrokes as defined by X Windows header files
       Typer.GetValidKeyCodes()
     """
-    resp = http_get('https://cgit.freedesktop.org/xorg/proto/x11proto/plain/keysymdef.h')
+    resp = http_get('https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/raw/master/include/X11/keysymdef.h')
     
     return [regex_sub(r'#define XK_([^ \t]+).*$','\\1',a) for a in resp.text.split('\n') if regex_match(r"#define XK_",a)]
