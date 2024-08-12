@@ -7,7 +7,15 @@
 #
 # Usage:
 #
-#     Set optional variable "is2d" to 1 to parse two-dimentional tuples 
+#     Set optional variable "is2d" via the CLI to parse two-dimentional tuples
+#
+#     Example:
+#
+#          # Will parse 2-dimentional tuple
+#          awk -v is2d=1 -f totuple.awk <<< "INPUT STRING"
+#
+#          # Will parse 1-dimentional tuple
+#          awk -f totuple.awk <<< "INPUT STRING"
 #
 # Example 1:
 #
