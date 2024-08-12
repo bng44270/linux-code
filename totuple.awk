@@ -1,5 +1,5 @@
 ################################
-# Parse out a two dimentional tuple from string value
+# Parse out a two dimensional tuple from string value
 #
 # If Inner tuple has two values (key/value), the use
 # of the Python dict class can be used to convert tuple
@@ -17,13 +17,13 @@
 #          # Will parse 1-dimentional tuple
 #          awk -f totuple.awk <<< "INPUT STRING"
 #
-# Example 1:
+# 1-Dimensional Example:
 #
 #     Input:    Chicago|Cincinnati|St. Louis|Washington, DC
 #
 #     Output:   ("Chicago","Cincinnati","St. Louis","Washington, DC")
 #
-# Example 2:
+# 2-Dimensional Example (unencoded comma's not allowed in keys/values):
 #
 #     Input:    name,Bob|age,38|town,Chicago
 #
@@ -35,22 +35,27 @@
 
 BEGIN {
 	RS="|";
-	printf("(");
+	TEXT = "(";
 }
 {
-	element = gensub(/"|\n/,"","g",$0);
-	if (typeof(is2d) == "untyped") {
-		printf("\"%s\",",element);
-	}
-	else {
-		printf("(");
-		c = split(element,a,",");
-		for (i = 1; i <= c; i++) {
-			printf("\"%s\",",a[i]);
+	if (length($0) > 1) {
+		element = gensub(/"|\n/,"","g",$0);
+		if (typeof(is2d) == "untyped") {
+			TEXT = TEXT sprintf("\"%s\",",element);
 		}
-		printf("\b),",element);
+		else {
+			TEXT = TEXT "(";
+			c = split(element,a,",");
+			for (i = 1; i <= c; i++) {
+				TEXT = TEXT sprintf("\"%s\",",a[i]);
+			}
+			sub(/,$/,"",TEXT);
+			TEXT = TEXT sprintf("),",element);
+		}
 	}
 }
 END {
-	printf("\b)");
+	sub(/,$/,"",TEXT);
+	TEXT = TEXT sprintf(")");
+	print TEXT;
 }
